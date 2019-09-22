@@ -156,7 +156,7 @@ class Service(HTTPMethodView):
         # remove trailing / from URL
         requested_url = re.sub("/+$", "", requested_url)
 
-        # check in we have this url registered in redis
+        # check if we have this url registered in redis
         redis_id = r.get_id_from_url(requested_url)
         if redis_id is None:
             redis_id = r.add_url(requested_url, requested_interval)
