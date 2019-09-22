@@ -203,6 +203,9 @@ class Service_alter(HTTPMethodView):
 
 class Service_alter1(HTTPMethodView):
     def get(self, request, id):
+        if str.isdigit(id) is False:
+            return response.HTTPResponse(status=400)
+
         if int(id) not in timers_table:
             return response.HTTPResponse(body="ID not found", status=404)
         list = r.dump_fetch_history(id)
