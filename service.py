@@ -197,6 +197,9 @@ class Service_alter(HTTPMethodView):
 
         return text("{\"id\": %s}" % redis_id)
 
+    def get(self, request, id):
+        return response.HTTPResponse(status=400)
+
 
 class Service_alter1(HTTPMethodView):
     def get(self, request, id):
