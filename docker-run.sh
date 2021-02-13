@@ -2,5 +2,5 @@
 
 set -e
 
-/usr/bin/redis-server /etc/redis.conf --supervised systemd --daemonize yes
+redis-server --daemonize yes
 /app/service.py

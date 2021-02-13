@@ -1,13 +1,9 @@
-FROM centos
+FROM fedora:33
 
-ENV LANG=en_US.UTF8
-RUN yum install -y python3
-RUN yum install -y python3-devel
-RUN yum install -y gcc
-RUN yum install -y make
-RUN yum install -y epel-release
-RUN yum install -y redis
-RUN pip3 install --user sanic multitimer redis validators
+ENV LANG=C.UTF-8
+RUN dnf install -y gcc python3-devel redis
+# https://src.fedoraproject.org/rpms/python-pip/pull-request/67
+RUN pip3 install --root / multitimer redis sanic validators
 RUN mkdir /app
 
 COPY service.py /app
