@@ -44,7 +44,7 @@ then
 fi
 printf "${green}%s${normal}\n" "success"
 
-# we will need a temporary files for the rest of the tests
+# we will need a temporary file for the rest of the tests
 temp="$(mktemp)"
 
 # 1. add new id, use correct JSON
