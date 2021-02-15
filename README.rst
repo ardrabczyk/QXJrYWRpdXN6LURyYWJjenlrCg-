@@ -50,7 +50,7 @@ Error is returned in case of malformed URL or malformed JSON:
    Content-Type: text/plain; charset=utf-8
 
    Error: Failed when parsing body as json
-   $ curl -si 127.0.0.1:8080/api/fetcher -X POST -d '{"url":"https//httpbin.org/range/15","interval":"2"}'
+   $ curl -si 127.0.0.1:8080/api/fetcher -X POST -d '{"url":"https://httpbin.org/range/15","interval":"2"}'
    HTTP/1.1 400 Bad Request
    Connection: keep-alive
    Keep-Alive: 5
