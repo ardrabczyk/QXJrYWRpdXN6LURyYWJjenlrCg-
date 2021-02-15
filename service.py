@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-"
 
 import json
+import re
+import urllib.request
+import time
 from sanic import Sanic
 from sanic import response
 from sanic.views import HTTPMethodView
@@ -9,9 +12,6 @@ from sanic.response import text
 import multitimer
 import redis
 import validators
-import re
-import urllib.request
-import time
 
 app = Sanic(__name__)
 
@@ -44,17 +44,17 @@ class Redis():
     def get_id_from_url(self, url):
         return self._db_connection.hmget(url, "id")[0]
 
-    def delete_id(self, id):
-        url_key = self._db_connection.hmget(id, "url")[0]
+    def delete_id(self, id_to_delete):
+        url_key = self._db_connection.hmget(id_to_delete, "url")[0]
         if url_key is None:
             return None
 
-        list_name = "history" + ":" + id
+        list_name = "history" + ":" + id_to_delete
         # delete history and 2 keys
         self._db_connection.delete(list_name)
         self._db_connection.delete(url_key)
-        self._db_connection.delete(id)
-        return id
+        self._db_connection.delete(id_to_delete)
+        return id_to_delete
 
     def add_url(self, url, interval):
         # ideally, we should look for a free bucket here
@@ -64,25 +64,25 @@ class Redis():
         self._db_connection.hmset(url, {"id": self._cur_id})
         return self._cur_id
 
-    def add_fetch_record(self, url, response, duration):
+    def add_fetch_record(self, url, add_response, duration):
         # get ID for site
         redis_id = self._db_connection.hmget(url, "id")[0]
         list_name = "history" + ":" + redis_id.decode("utf-8")
-        record_dict = {"response": response, "duration": duration,
+        record_dict = {"response": add_response, "duration": duration,
                        "created_at": time.time()}
         data_j = json.dumps(record_dict)
         self._db_connection.rpush(list_name, data_j)
 
-    def update_interval(self, id, new_interval):
-        self._db_connection.hset(id, "interval", new_interval)
+    def update_interval(self, record_id, new_interval):
+        self._db_connection.hset(record_id, "interval", new_interval)
 
-    def dump_fetch_history(self, id):
-        list_name = "history" + ":" + id
+    def dump_fetch_history(self, record_id):
+        list_name = "history" + ":" + record_id
         records_list = []
         for i in range(0, self._db_connection.llen(list_name)):
-            d = json.loads(self._db_connection.lindex(list_name, i)
-                           .decode("utf-8"))
-            records_list.append(d)
+            data = json.loads(self._db_connection.lindex(list_name, i)
+                              .decode("utf-8"))
+            records_list.append(data)
         return records_list
 
     def dump_all_urls(self):
@@ -103,14 +103,16 @@ class Redis():
 
 class Service(HTTPMethodView):
 
-    def get(self, request):
-        list = r.dump_all_urls()
+    @staticmethod
+    def get(request):
+        print("in get 0")
+        all_urls = r.dump_all_urls()
 
-        if not list:
+        if not all_urls:
             return text("[]")
 
         output_json = "["
-        for i in list:
+        for i in all_urls:
             output_json += json.dumps(i)
             output_json += ',\n'
 
@@ -118,39 +120,41 @@ class Service(HTTPMethodView):
         output_json += "]"
         return text(output_json)
 
-    def worker_func(self, site, interval):
+    @staticmethod
+    def worker_func(site, interval):
         start = time.time()
         try:
             contents = urllib.request.urlopen(site, timeout=5)
         except Exception:
-            response = None
+            worker_response = None
             end = time.time()
-            response = None
+            worker_response = None
         else:
             end = time.time()
-            response = contents.read().decode("utf-8")
+            worker_response = contents.read().decode("utf-8")
 
         duration = end - start
 
-        r.add_fetch_record(site, response, duration)
+        r.add_fetch_record(site, worker_response, duration)
 
     def post(self, request):
         requested_interval = request.json.get('interval')
         requested_url = request.json.get('url')
 
-        if type(requested_interval) is str:
-            return response.HTTPResponse(body="Interval cannot be a string",
-                                         status=400)
-
-        if type(requested_url) is not str:
+        try:
+            if validators.url(requested_url) is not True:
+                return response.HTTPResponse(body="Malformatted URL",
+                                             status=400)
+        except TypeError:
             return response.HTTPResponse(body="URL is not a string",
                                          status=400)
 
-        if validators.url(requested_url) is not True:
-            return response.HTTPResponse(body="Malformatted URL", status=400)
-
-        if requested_interval < 1:
-            return response.HTTPResponse(body="Interval smaller than 1",
+        try:
+            if requested_interval < 1:
+                return response.HTTPResponse(body="Interval smaller than 1",
+                                             status=400)
+        except TypeError:
+            return response.HTTPResponse(body="Interval cannot be a string",
                                          status=400)
 
         # remove trailing / from URL
@@ -185,31 +189,34 @@ class Service(HTTPMethodView):
         return text("{\"id\": %s}" % redis_id)
 
 
-class Service_alter(HTTPMethodView):
-    def delete(self, request, id):
-        if int(id) in timers_table:
-            timers_table[int(id)].stop()
-            del(timers_table[int(id)])
+class ServiceAlter(HTTPMethodView):
+    @staticmethod
+    def delete(request, record_id):
+        if int(record_id) in timers_table:
+            timers_table[int(record_id)].stop()
+            del timers_table[int(record_id)]
 
-        redis_id = r.delete_id(id)
+        redis_id = r.delete_id(record_id)
         if redis_id is None:
             return response.HTTPResponse(body="ID not found", status=404)
 
         return text("{\"id\": %s}" % redis_id)
 
-    def get(self, request, id):
+    @staticmethod
+    def get(request, record_id):
         return response.HTTPResponse(status=400)
 
 
-class Service_alter1(HTTPMethodView):
-    def get(self, request, id):
-        if str.isdigit(id) is False:
+class ServiceAlter1(HTTPMethodView):
+    @staticmethod
+    def get(request, record_id):
+        if str.isdigit(record_id) is False:
             return response.HTTPResponse(status=400)
 
-        if int(id) not in timers_table:
+        if int(record_id) not in timers_table:
             return response.HTTPResponse(body="ID not found", status=404)
-        list = r.dump_fetch_history(id)
-        output_json = json.dumps(list, indent=3)
+        record_list = r.dump_fetch_history(record_id)
+        output_json = json.dumps(record_list, indent=3)
         return text(output_json)
 
 
@@ -223,8 +230,8 @@ if __name__ == '__main__':
     print("PORT: ", app.config.PORT)
     print("ENDPOINT_BASE_ADDRESS: ", app.config.ENDPOINT_BASE_ADDRESS)
     app.add_route(Service.as_view(), '/' + app.config.ENDPOINT_BASE_ADDRESS)
-    app.add_route(Service_alter.as_view(),
+    app.add_route(ServiceAlter.as_view(),
                   '/' + app.config.ENDPOINT_BASE_ADDRESS + '/<id>')
-    app.add_route(Service_alter1.as_view(),
+    app.add_route(ServiceAlter1.as_view(),
                   '/' + app.config.ENDPOINT_BASE_ADDRESS + '/<id>/history')
     app.run(host="0.0.0.0", port=app.config.PORT)
