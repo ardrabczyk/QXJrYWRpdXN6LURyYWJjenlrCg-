@@ -225,7 +225,7 @@ if __name__ == '__main__':
     timers_table = {}
     reusable_ids = ()
 
-    app.config.from_envvar('MYAPP_SETTINGS')
+    app.config.update_config("/app/conf.py")
     print("REQUEST_MAX_SIZE: ", app.config.REQUEST_MAX_SIZE)
     print("PORT: ", app.config.PORT)
     print("ENDPOINT_BASE_ADDRESS: ", app.config.ENDPOINT_BASE_ADDRESS)

@@ -7,7 +7,7 @@ RUN pip3 install --root / multitimer redis sanic validators
 RUN mkdir /app
 
 COPY service.py /app
-COPY conf /app
+COPY conf.py /app
 COPY docker-run.sh /app
 RUN chmod +x /app/docker-run.sh
 

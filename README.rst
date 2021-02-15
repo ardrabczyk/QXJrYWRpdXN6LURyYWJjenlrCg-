@@ -193,4 +193,4 @@ Change to `tests` and run:
 
 ::
 
-   ./test.sh  ../conf
+   ./test.sh  ../conf.py
