@@ -59,9 +59,9 @@ class Redis():
     def add_url(self, url, interval):
         # ideally, we should look for a free bucket here
         self._cur_id += 1
-        self._db_connection.hmset(self._cur_id, {"url": url,
-                                                 "interval": interval})
-        self._db_connection.hmset(url, {"id": self._cur_id})
+        self._db_connection.hset(self._cur_id, mapping={"url": url,
+                                                        "interval": interval})
+        self._db_connection.hset(url, mapping={"id": self._cur_id})
         return self._cur_id
 
     def add_fetch_record(self, url, add_response, duration):
