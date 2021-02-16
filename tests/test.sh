@@ -32,7 +32,7 @@ green="\033[32m"
 red="\033[31m"
 normal="\033[00m"
 
-# 0 check is service is running at all
+# 0. check is service is running at all
 test=0
 printf "Running test %d: " "$test"
 expected_return=0
