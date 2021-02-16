@@ -105,7 +105,6 @@ class Service(HTTPMethodView):
 
     @staticmethod
     def get(request):
-        print("in get 0")
         all_urls = r.dump_all_urls()
 
         if not all_urls:
