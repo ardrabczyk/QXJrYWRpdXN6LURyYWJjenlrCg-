@@ -230,7 +230,8 @@ if __name__ == '__main__':
     print("ENDPOINT_BASE_ADDRESS: ", app.config.ENDPOINT_BASE_ADDRESS)
     app.add_route(Service.as_view(), '/' + app.config.ENDPOINT_BASE_ADDRESS)
     app.add_route(ServiceAlter.as_view(),
-                  '/' + app.config.ENDPOINT_BASE_ADDRESS + '/<id>')
+                  '/' + app.config.ENDPOINT_BASE_ADDRESS + '/<record_id>')
     app.add_route(ServiceAlter1.as_view(),
-                  '/' + app.config.ENDPOINT_BASE_ADDRESS + '/<id>/history')
+                  '/' + app.config.ENDPOINT_BASE_ADDRESS +
+                  '/<record_id>/history')
     app.run(host="0.0.0.0", port=app.config.PORT)
