@@ -189,8 +189,12 @@ Start service in Docker container:
 Tests
 ============
 
-Change to `tests` and run:
+Run tests:
 
 ::
 
-   ./test.sh  ../conf.py
+   $ tests/test.sh ./conf.py
+   Running test 0: success
+   Running test 1: success
+   Running test 2: success
+   Running test 3: success
