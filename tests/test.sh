@@ -32,7 +32,7 @@ green="\033[32m"
 red="\033[31m"
 normal="\033[00m"
 
-# 0. check is service is running at all
+# 1. check is service is running at all
 test=1
 printf "Running test %d: " "$test"
 expected_return=0
@@ -47,7 +47,7 @@ printf "${green}%s${normal}\n" "success"
 # we will need a temporary file for the rest of the tests
 temp="$(mktemp)"
 
-# 1. add new id, use correct JSON
+# 2. add new id, use correct JSON
 test=$((++test))
 printf "Running test %d: " "$test"
 expected_return=0
@@ -76,7 +76,7 @@ then
 fi
 printf "${green}%s${normal}\n" "success"
 
-# 2. add new id, use incorrect JSON
+# 3. add new id, use incorrect JSON
 test=$((++test))
 printf "Running test %d: " "$test"
 expected_return=0
@@ -96,7 +96,7 @@ then
 fi
 printf "${green}%s${normal}\n" "success"
 
-# 3. add new id, too big payload
+# 4. add new id, too big payload
 test=$((++test))
 printf "Running test %d: " "$test"
 expected_return=0
@@ -117,7 +117,7 @@ then
 fi
 printf "${green}%s${normal}\n" "success"
 
-# 4. add new id, malformatted URL
+# 5. add new id, malformatted URL
 test=$((++test))
 printf "Running test %d: " "$test"
 expected_return=0
@@ -137,7 +137,7 @@ then
 fi
 printf "${green}%s${normal}\n" "success"
 
-# 5. add new id, pass interval as a string
+# 6. add new id, pass interval as a string
 test=$((++test))
 printf "Running test %d: " "$test"
 expected_return=0
