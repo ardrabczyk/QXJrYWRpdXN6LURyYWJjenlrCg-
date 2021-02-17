@@ -33,7 +33,7 @@ red="\033[31m"
 normal="\033[00m"
 
 # 0. check is service is running at all
-test=0
+test=1
 printf "Running test %d: " "$test"
 expected_return=0
 curl -si 127.0.0.1:"$PORT"/"$ENDPOINT_BASE_ADDRESS" >/dev/null 2>&1
@@ -48,7 +48,7 @@ printf "${green}%s${normal}\n" "success"
 temp="$(mktemp)"
 
 # 1. add new id, use correct JSON
-test=1
+test=$((++test))
 printf "Running test %d: " "$test"
 expected_return=0
 curl -si 127.0.0.1:"$PORT"/"$ENDPOINT_BASE_ADDRESS" -X POST -d '{"url":"https://httpbin.org/range/2","interval":3}' > "$temp"
@@ -77,7 +77,7 @@ fi
 printf "${green}%s${normal}\n" "success"
 
 # 2. add new id, use incorrect JSON
-test=2
+test=$((++test))
 printf "Running test %d: " "$test"
 expected_return=0
 curl -si 127.0.0.1:"$PORT"/"$ENDPOINT_BASE_ADDRESS" -X POST -d '{"url":"https://httpbin.org/range/2","interval":"3"}' > "$temp"
@@ -97,7 +97,7 @@ fi
 printf "${green}%s${normal}\n" "success"
 
 # 3. add new id, too big payload
-test=3
+test=$((++test))
 printf "Running test %d: " "$test"
 expected_return=0
 payload="$(printf '%*s' "$REQUEST_MAX_SIZE" | tr ' ' a)"
@@ -118,7 +118,7 @@ fi
 printf "${green}%s${normal}\n" "success"
 
 # 4. add new id, malformatted URL
-test=4
+test=$((++test))
 printf "Running test %d: " "$test"
 expected_return=0
 curl -si 127.0.0.1:"$PORT"/"$ENDPOINT_BASE_ADDRESS" -X POST -d '{"url":"https//httpbin.org/range/15","interval":3}' > "$temp"
@@ -138,7 +138,7 @@ fi
 printf "${green}%s${normal}\n" "success"
 
 # 5. add new id, pass interval as a string
-test=5
+test=$((++test))
 printf "Running test %d: " "$test"
 expected_return=0
 curl -si 127.0.0.1:"$PORT"/"$ENDPOINT_BASE_ADDRESS" -X POST -d '{"url":"https://httpbin.org/range/16","interval":"3"}' > "$temp"
