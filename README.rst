@@ -198,3 +198,5 @@ Run tests:
    Running test 1: success
    Running test 2: success
    Running test 3: success
+   Running test 4: success
+   Running test 5: success

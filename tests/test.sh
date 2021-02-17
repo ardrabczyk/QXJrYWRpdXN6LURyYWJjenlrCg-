@@ -116,3 +116,43 @@ then
     exit 4
 fi
 printf "${green}%s${normal}\n" "success"
+
+# 4. add new id, malformatted URL
+test=4
+printf "Running test %d: " "$test"
+expected_return=0
+curl -si 127.0.0.1:"$PORT"/"$ENDPOINT_BASE_ADDRESS" -X POST -d '{"url":"https//httpbin.org/range/15","interval":3}' > "$temp"
+if [ ! $? -eq "$expected_return" ]
+then
+    printf "${red}%s${normal}\n" "failure"
+    exit 4
+fi
+
+# check http header
+received_header="$(head -1 "$temp" | tr -d '\r')"
+if [ "$received_header" != "HTTP/1.1 400 Bad Request" ]
+then
+    printf "${red}%s%s${normal}\n" "failure. Expected HTTP/1.1 400 Bad Request got " "$received_header"
+    exit 4
+fi
+printf "${green}%s${normal}\n" "success"
+
+# 5. add new id, pass interval as a string
+test=5
+printf "Running test %d: " "$test"
+expected_return=0
+curl -si 127.0.0.1:"$PORT"/"$ENDPOINT_BASE_ADDRESS" -X POST -d '{"url":"https://httpbin.org/range/16","interval":"3"}' > "$temp"
+if [ ! $? -eq "$expected_return" ]
+then
+    printf "${red}%s${normal}\n" "failure"
+    exit 4
+fi
+
+# check http header
+received_header="$(head -1 "$temp" | tr -d '\r')"
+if [ "$received_header" != "HTTP/1.1 400 Bad Request" ]
+then
+    printf "${red}%s%s${normal}\n" "failure. Expected HTTP/1.1 400 Bad Request got " "$received_header"
+    exit 4
+fi
+printf "${green}%s${normal}\n" "success"
