@@ -194,9 +194,10 @@ Run tests:
 ::
 
    $ tests/test.sh ./conf.py
-   Running test 0: success
    Running test 1: success
    Running test 2: success
    Running test 3: success
    Running test 4: success
    Running test 5: success
+   Running test 6: success
+   Running test 7: success
